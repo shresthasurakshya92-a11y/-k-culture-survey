@@ -47,7 +47,8 @@ button{border:0;border-radius:10px;padding:13px 20px;font-weight:700;font-size:1
  <p class="subtitle">K-팝부터 K-드라마까지, 한국 문화는 세계인의 생활을 어떻게 바꾸고 있을까?</p>
  <div class="meta"><span>◷ 약 2~3분</span><span>▤ 총 5문항</span><span>◎ 대학생 대상</span></div>
 </header>
-<form id="survey">
+<form id="survey" action="https://formspree.io/f/https://formspree.io/f/mzerrojj" method="POST">
+
 <div class="question">
   <div class="qtitle">이름 (필수) *</div>
   <input type="text" name="respondent_name"
@@ -145,7 +146,35 @@ button{border:0;border-radius:10px;padding:13px 20px;font-weight:700;font-size:1
 const form=document.getElementById('survey'),bar=document.getElementById('bar'),count=document.getElementById('count');
 function progress(){let n=0;for(let i=1;i<=5;i++)if(form.querySelector(`[name="q${i}"]:checked`))n++;count.textContent=n+' / 5';bar.style.width=(n/5*100)+'%'}
 form.addEventListener('change',progress);
-form.addEventListener('submit',e=>{e.preventDefault();if(!form.reportValidity())return;form.style.display='none';document.getElementById('thanks').style.display='block';window.scrollTo({top:0,behavior:'smooth'})});
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!form.reportValidity()) return;
+
+  const button = form.querySelector('.submit');
+  button.disabled = true;
+  button.textContent = '제출 중...';
+
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (!response.ok) throw new Error('Submission failed');
+
+    form.style.display = 'none';
+    document.getElementById('thanks').style.display = 'block';
+    window.scrollTo({top: 0, behavior: 'smooth'});
+
+  } catch (error) {
+    alert('제출에 실패했습니다. 다시 시도해 주세요.');
+  } finally {
+    button.disabled = false;
+    button.textContent = '설문 제출하기';
+  }
+});
+
 form.addEventListener('reset',()=>setTimeout(progress,0));
 </script>
 </body>
